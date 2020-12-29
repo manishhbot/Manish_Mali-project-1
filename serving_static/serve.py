@@ -13,7 +13,7 @@ import os
 app = Flask(__name__)
 app.secret_key = "abc/abc/bcd/bcd"
 basedir = os.path.abspath(os.path.dirname(__file__))
-cluster = "mongodb+srv://Manish:Consultadd7897@cluster1.g3pif.mongodb.net/Mydatabase?retryWrites=true&w=majority"
+# cluster = "mongodb+srv://Manish:Consultadd7897@cluster1.g3pif.mongodb.net/Mydatabase?retryWrites=true&w=majority"
 client = pymongo.MongoClient(cluster)
 db = client.Mydatabase
 # user_collection = pymongo.collection.Collection(db, 'user_collection')
@@ -82,14 +82,14 @@ def start_session(user):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # if request.method == "POST":
-    user = db.app1.find_one({"username": request.form.get('uname'), "password": request.form.get('psw')})
+    if request.method == "POST":
+        user = db.app1.find_one({"username": request.form.get('uname'), "password": request.form.get('psw')})
 
-    if user and Bcrypt.check_password_hash(request.form.get('psw'), user['password']):
-
-        return start_session(user)
-    else:
-        print("wrong creds")
+        if user and Bcrypt.check_password_hash(request.form.get('psw'), user['password']):
+            return start_session(user)
+        else:
+            return "Password incorrect"
+    elif request.method == "GET":
         return render_template('login.html')
 
 
@@ -104,7 +104,6 @@ def registration():
 
         new_user = {"firstname": firstname, "lastname": lastname, "username": username, "email": email,
                     'password': bcrypt.generate_password_hash(password).decode('utf-8')}
-        # db.collection.insert_one(new_user)
         if db.app1.find_one({"email": new_user['email']}):
             flash('email already exists')
             return render_template("new.html")
